@@ -1,3 +1,6 @@
+import time
+import traceback
+
 from invoke import task
 import pypd
 import tweepy
@@ -5,13 +8,17 @@ import tweepy
 
 @task(name='check-loop')
 def check_loop(c):
-    # TODO:
-    # - check PAX public twitter feed
-    # - loop
-    # - when any public tweet:
-    # - send page
-    # - link to the tweet itself probably
-    pass
+    # The stream listener will, sans any issues, block/loop internally
+    # forever. Here, we just want to kickstart it if it gets disconnected.
+    while True:
+        try:
+            stream_tweets(c)
+        # TODO: what's recoverable exactly?
+        except Exception as e:
+            print("Got exception! {!r}".format(e))
+            traceback.print_exc()
+            print("Trying to recover...back to top of loop, after sleep")
+        time.sleep(60)
 
 
 def twitter_auth(c):
@@ -27,20 +34,35 @@ def twitter_auth(c):
 
 
 class Anxious(tweepy.StreamListener):
+    def __init__(self, *args, **kwargs):
+        self.context = kwargs.pop('context')
+        super(Anxious, self).__init__(*args, **kwargs)
+
     def on_status(self, status):
+        url = "https://twitter.com/{}/status/{}".format(
+            status.user.screen_name,
+            status.id,
+        )
         # Only alert on real tweets, not replies, PAX acct definitely replies
         # to @-messages sometimes and I don't want to get paged on those!
-        if not status.in_reply_to_status_id:
-            print("Status: {}".format(status))
+        if status.in_reply_to_status_id:
+            print("Skipping a mention ({})".format(url))
+            return
+        print("Status: {} ({})".format(status, url))
+        send_page(self.context, url)
 
     def on_error(self, status_code):
         print("Error {}!".format(status_code))
+        if status_code == 420:
+            print("Got a 420 (rate limit warning), disconnecting!")
+            return False
 
 
 @task(name='stream-tweets')
 def stream_tweets(c):
     auth = twitter_auth(c)
-    stream = tweepy.Stream(auth=auth, listener=Anxious())
+    stream = tweepy.Stream(auth=auth, listener=Anxious(context=c))
+    # This will block until disconnected...
     stream.filter(follow=[str(c.twitter.follow_id)])
 
 
