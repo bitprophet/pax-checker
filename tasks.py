@@ -101,11 +101,15 @@ def lock_deps(c):
     c.run("pip-sync")
 
 
+@task(name='push-config')
+def push_config(c):
+    # Push any updated .env file contents (...ALSO triggers restart)
+    c.run("heroku config:push -o")
+
+
 @task
 def deploy(c):
     # Push to my own repo
     c.run("git push", pty=True)
     # Push to heroku (triggers restart)
     c.run("git push heroku HEAD", pty=True)
-    # Push any updated .env file contents (...ALSO triggers restart)
-    c.run("heroku config:push -o")
