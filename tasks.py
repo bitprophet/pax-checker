@@ -19,6 +19,7 @@ def check_loop(c):
     # forever. Here, we just want to kickstart it if it gets disconnected.
     while True:
         try:
+            logger.info("Starting to stream tweets...")
             stream_tweets(c)
         # TODO: what's recoverable exactly?
         except Exception as e:
