@@ -82,3 +82,18 @@ def send_page(c, url, text=None):
               },
         ],
     })
+
+
+# TODO: invocations?
+
+@task(name='lock-deps')
+def lock_deps(c):
+    c.run("pip-compile --no-index")
+    c.run("pip-sync")
+
+
+@task
+def deploy(c):
+    # TODO: better way to do this? Can't I get git to push to >1 remote at a
+    # time?
+    c.run("git push heroku HEAD")
