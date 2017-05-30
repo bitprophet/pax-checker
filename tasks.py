@@ -57,6 +57,11 @@ class Anxious(tweepy.StreamListener):
         if status.in_reply_to_status_id:
             logger.debug("Skipping a mention ({})".format(url))
             return
+        # ALSO skip anything sent TO that account, which inexplicably shows up
+        # here too...oh, Twitter.
+        if status.user.id != c.twitter.follow_id:
+            logger.debug("Skipping a non-reply mention ({})".format(url))
+            return
         text = status.text.encode('ascii', errors='replace')
         logger.info("Tweet seen: {} ({})".format(text, url))
         send_page(self.context, url, text)
