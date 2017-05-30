@@ -10,6 +10,10 @@ certifi==2017.4.17        # via requests
 chardet==3.0.3            # via requests
 idna==2.5                 # via requests
 invoke==0.17.0
+oauthlib==2.0.2           # via requests-oauthlib
 pypd==0.1.0
-requests==2.17.3          # via pypd
+requests-oauthlib==0.8.0  # via tweepy
+requests==2.17.3          # via pypd, requests-oauthlib, tweepy
+six==1.10.0               # via tweepy
+tweepy==3.5.0
 urllib3==1.21.1           # via requests
