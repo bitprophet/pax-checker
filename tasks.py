@@ -102,7 +102,9 @@ def lock_deps(c):
 
 @task
 def deploy(c):
-    # TODO: better way to do this? Can't I get git to push to >1 remote at a
-    # time?
+    # Push to my own repo
     c.run("git push", pty=True)
+    # Push to heroku (triggers restart)
     c.run("git push heroku HEAD", pty=True)
+    # Push any updated .env file contents (...ALSO triggers restart)
+    c.run("heroku config:push -o")
