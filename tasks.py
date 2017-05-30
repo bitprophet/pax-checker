@@ -96,4 +96,5 @@ def lock_deps(c):
 def deploy(c):
     # TODO: better way to do this? Can't I get git to push to >1 remote at a
     # time?
-    c.run("git push heroku HEAD")
+    c.run("git push", pty=True)
+    c.run("git push heroku HEAD", pty=True)
