@@ -49,7 +49,7 @@ class Anxious(tweepy.StreamListener):
             print("Skipping a mention ({})".format(url))
             return
         print("Status: {} ({})".format(status, url))
-        send_page(self.context, url)
+        send_page(self.context, url, status.text)
 
     def on_error(self, status_code):
         print("Error {}!".format(status_code))
@@ -67,18 +67,18 @@ def stream_tweets(c):
 
 
 @task(name='send-page')
-def send_page(c, url):
+def send_page(c, url, text=None):
     # This is how to configure pypd. Mehhhhh
     pypd.api_key = c.pagerduty.api_key
     pypd.Event.create(data={
         'service_key': c.pagerduty.service_key,
         'event_type': 'trigger',
-        'description': 'o shit pax tweeted?!',
+        'description': 'Tweet alert!',
         'contexts': [
               {
                   'type': 'link',
                   'href': url,
-                  'text': 'Link to tweet!',
+                  'text': text,
               },
         ],
     })
