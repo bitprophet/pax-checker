@@ -1,0 +1,11 @@
+# NOTE: this just sets the expected conf structure; actual data is fed in from
+# env vars (typically via a .env file)
+pagerduty:
+  api_key: comes-from-pd-user-account
+  service_key: comes-from-pd-integration-entry
+twitter:
+  consumer_key: twitter-app-consumer-key
+  consumer_secret: twitter-app-consumer-secret-key
+  access_token: twitter-user-oauth-access-token
+  access_secret: twitter-user-oauth-access-secret-key
+  follow_id: target-twitter-user-numeric-id
