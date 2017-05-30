@@ -1,1 +1,1 @@
-web: inv check-loop
+worker: inv check-loop
