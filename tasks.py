@@ -26,7 +26,8 @@ def check_loop(c):
             logger.error("Got exception! {!r}".format(e))
             traceback.print_exc()
             logger.error("Trying to recover...back to top of loop, after sleep")
-        time.sleep(60)
+        # >60s sleep to ensure we don't hit rate limiting
+        time.sleep(120)
 
 
 def twitter_auth(c):
