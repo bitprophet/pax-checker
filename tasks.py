@@ -1,9 +1,16 @@
+import logging
+import os
 import time
 import traceback
 
 from invoke import task
 import pypd
 import tweepy
+
+
+logger = logging.getLogger(__file__)
+logger.addHandler(logging.StreamHandler())
+logger.setLevel(getattr(logging, os.environ.get('LOGLEVEL', 'INFO')))
 
 
 @task(name='check-loop')
@@ -15,9 +22,9 @@ def check_loop(c):
             stream_tweets(c)
         # TODO: what's recoverable exactly?
         except Exception as e:
-            print("Got exception! {!r}".format(e))
+            logger.error("Got exception! {!r}".format(e))
             traceback.print_exc()
-            print("Trying to recover...back to top of loop, after sleep")
+            logger.error("Trying to recover...back to top of loop, after sleep")
         time.sleep(60)
 
 
@@ -46,15 +53,16 @@ class Anxious(tweepy.StreamListener):
         # Only alert on real tweets, not replies, PAX acct definitely replies
         # to @-messages sometimes and I don't want to get paged on those!
         if status.in_reply_to_status_id:
-            print("Skipping a mention ({})".format(url))
+            logger.debug("Skipping a mention ({})".format(url))
             return
-        print("Status: {} ({})".format(status, url))
-        send_page(self.context, url, status.text)
+        text = status.text.encode('ascii', errors='replace')
+        logger.info("Tweet seen: {} ({})".format(text, url))
+        send_page(self.context, url, text)
 
     def on_error(self, status_code):
-        print("Error {}!".format(status_code))
+        logger.error("Error {}!".format(status_code))
         if status_code == 420:
-            print("Got a 420 (rate limit warning), disconnecting!")
+            logger.critical("Got a 420 (rate limit warning), disconnecting!")
             return False
 
 
