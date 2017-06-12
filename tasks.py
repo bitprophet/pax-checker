@@ -48,6 +48,10 @@ class Anxious(tweepy.StreamListener):
         super(Anxious, self).__init__(*args, **kwargs)
 
     def on_status(self, status):
+        # TODO: somehow, the actual real tweet we wanted to catch with this,
+        # showed up as, IIRC, a 'reply' style tweet - despite not being a reply
+        # to any other status nor mentioning any other account! WTF.
+        # That tweet was: https://twitter.com/Official_PAX/status/872896057604284416
         url = "https://twitter.com/{}/status/{}".format(
             status.user.screen_name,
             status.id,
